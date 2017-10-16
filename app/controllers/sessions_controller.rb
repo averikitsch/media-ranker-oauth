@@ -33,7 +33,11 @@ class SessionsController < ApplicationController
       flash[:status] = :success
       flash[:result_text] = "Welcome back #{@user.name}"
     else
-      @user = User.new(uid: @auth_hash['uid'],provider: @auth_hash['provider'], username: @auth_hash['info']['nickname'], name: @auth_hash['info']['name'], email:@auth_hash['info']['email'])
+      if @auth_hash['provider'] == "google_oauth2"
+        @user = User.new(uid: @auth_hash['uid'],provider: @auth_hash['provider'], username: @auth_hash['info']['name'], name: @auth_hash['info']['name'], email:@auth_hash['info']['email'])
+      else
+        @user = User.new(uid: @auth_hash['uid'],provider: @auth_hash['provider'], username: @auth_hash['info']['nickname'], name: @auth_hash['info']['name'], email:@auth_hash['info']['email'])
+      end
       if @user.save
         session[:user_id] = @user.id
         flash[:status] = :success
