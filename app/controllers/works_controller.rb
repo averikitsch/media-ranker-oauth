@@ -50,6 +50,9 @@ class WorksController < ApplicationController
   end
 
   def edit
+    unless find_user
+      redirect_to root_path
+    end
   end
 
   def update

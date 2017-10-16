@@ -8,7 +8,11 @@ class UsersController < ApplicationController
   end
 
   def show
-    @user = User.find_by(id: params[:id])
-    render_404 unless @user
+    if find_user
+      @user = User.find_by(id: params[:id])
+      render_404 unless @user
+    else
+      redirect_to root_path
+    end
   end
 end
