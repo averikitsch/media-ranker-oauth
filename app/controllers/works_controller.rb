@@ -11,11 +11,19 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+    if find_user
+      @works_by_category = Work.to_category_hash
+    else
+      redirect_to root_path
+    end
   end
 
   def new
-    @work = Work.new
+    if find_user
+      @work = Work.new
+    else
+      redirect_to root_path
+    end
   end
 
   def create
@@ -34,7 +42,11 @@ class WorksController < ApplicationController
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if find_user
+      @votes = @work.votes.order(created_at: :desc)
+    else
+      redirect_to root_path
+    end
   end
 
   def edit
