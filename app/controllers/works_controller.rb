@@ -28,7 +28,7 @@ class WorksController < ApplicationController
 
   def create
     @work = Work.new(media_params)
-    @work.created_by = @login_user.id
+    @work.user_id = @login_user.id
     @media_category = @work.category
     if @work.save
       flash[:status] = :success
@@ -51,10 +51,12 @@ class WorksController < ApplicationController
   end
 
   def edit
-    if @work.created_by != @login_user.id
-        flash.now[:status] = :failure
-        flash.now[:result_text] = "You do not have permissions to edit this #{@media_category.singularize}"
+    if find_user
+      if @work.user_id != @login_user.id
+        flash[:status] = :failure
+        flash[:result_text] = "You do not have permissions to edit this #{@media_category.singularize}"
         redirect_to work_path(@work.id)
+      end
     else
       redirect_to root_path
     end
@@ -67,15 +69,15 @@ class WorksController < ApplicationController
       flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
       redirect_to work_path(@work)
     else
-      flash[:status] = :failure
-      flash[:result_text] = "Could not update #{@media_category.singularize}"
-      flash[:messages] = @work.errors.messages
+      flash.now[:status] = :failure
+      flash.now[:result_text] = "Could not update #{@media_category.singularize}"
+      flash.now[:messages] = @work.errors.messages
       render :edit, status: :not_found
     end
   end
 
   def destroy
-    if @work.created_by == @login_user.id
+    if @work.user_id == @login_user.id
       @work.destroy
       flash[:status] = :success
       flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
