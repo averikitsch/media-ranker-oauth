@@ -81,8 +81,12 @@ class WorksController < ApplicationController
       @work.destroy
       flash[:status] = :success
       flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
+      redirect_to root_path
+    else
+      flash[:status] = :failure
+      flash[:result_text] = "You do not have permissions to delete this #{@media_category.singularize}"
+      redirect_to work_path(@work.id)
     end
-    redirect_to root_path
   end
 
   def upvote
