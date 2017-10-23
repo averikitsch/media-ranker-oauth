@@ -266,17 +266,16 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      start_vote_count = work.votes.count
-
-      user = users(:dan)
+      user = User.create!(username: "averi", provider: "github", uid:"1234232")
       login(user)
+
       session[:user_id].must_equal user.id
+      first = work.votes.count
       post upvote_path(work)
       # Should be a redirect_back
-      must_respond_with :redirect
+      # must_respond_with :redirect
 
-      work.reload
-      work.votes.count.must_equal start_vote_count + 1
+      work.votes.count.must_equal first + 1
     end
 
     it "returns 409 conflict if the user has already voted for that work" do

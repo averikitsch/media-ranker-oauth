@@ -19,7 +19,7 @@ describe UsersController do
       # Start with a clean slate
       Vote.destroy_all # for fk constraint
       User.destroy_all
-
+      login(user)
       get users_path
       must_respond_with :success
     end

@@ -22,9 +22,10 @@ describe Vote do
     let (:work2) { Work.new(category: 'book', title: 'For Whom the Bell Tolls') }
 
     it "allows one user to vote for multiple works" do
-      vote1 = Vote.new(user: user1, work: work1)
+      vote1 = Vote.new(user: users(:dan), work: works(:poodr))
       vote1.save!
-      vote2 = Vote.new(user: user1, work: work2)
+      vote2 = Vote.new(user: users(:dan), work: works(:movie))
+      puts vote2.errors.messages
       vote2.valid?.must_equal true
     end
 
