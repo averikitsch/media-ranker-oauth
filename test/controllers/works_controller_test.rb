@@ -37,12 +37,16 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      user = users(:dan)
+      login(user)
       Work.count.must_be :>, 0, "No works in the test fixtures"
       get works_path
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      user = users(:dan)
+      login(user)
       Work.destroy_all
       get works_path
       must_respond_with :success
@@ -51,6 +55,8 @@ describe WorksController do
 
   describe "new" do
     it "works" do
+      user = users(:dan)
+      login(user)
       get new_work_path
       must_respond_with :success
     end
@@ -58,6 +64,8 @@ describe WorksController do
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      user = users(:dan)
+      login(user)
       work_data = {
         work: {
           title: "test work"
@@ -76,6 +84,8 @@ describe WorksController do
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      user = users(:dan)
+      login(user)
       work_data = {
         work: {
           title: ""
@@ -94,6 +104,8 @@ describe WorksController do
     end
 
     it "renders 400 bad_request for bogus categories" do
+      user = users(:dan)
+      login(user)
       work_data = {
         work: {
           title: "test work"
@@ -114,11 +126,15 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      user = users(:dan)
+      login(user)
       get work_path(Work.first)
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = users(:dan)
+      login(user)
       bogus_work_id = Work.last.id + 1
       get work_path(bogus_work_id)
       must_respond_with :not_found
@@ -127,11 +143,15 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
-      get edit_work_path(Work.first)
+      user = users(:dan)
+      login(user)
+      get edit_work_path(works(:mariner))
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = users(:dan)
+      login(user)
       bogus_work_id = Work.last.id + 1
       get edit_work_path(bogus_work_id)
       must_respond_with :not_found
@@ -140,6 +160,8 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      user = users(:dan)
+      login(user)
       work = Work.first
       work_data = {
         work: {
@@ -155,6 +177,8 @@ describe WorksController do
     end
 
     it "renders bad_request for bogus data" do
+      user = users(:dan)
+      login(user)
       work = Work.first
       work_data = {
         work: {
@@ -170,6 +194,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = users(:dan)
+      login(user)
       bogus_work_id = Work.last.id + 1
       get work_path(bogus_work_id)
       must_respond_with :not_found
@@ -178,7 +204,9 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
-      work_id = Work.first.id
+      user = users(:dan)
+      login(user)
+      work_id = works(:thrill).id
 
       delete work_path(work_id)
       must_redirect_to root_path
@@ -188,6 +216,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      user = users(:dan)
+      login(user)
       start_count = Work.count
 
       bogus_work_id = Work.last.id + 1
@@ -199,11 +229,13 @@ describe WorksController do
   end
 
   describe "upvote" do
-    let(:user) { User.create!(username: "test_user") }
+
+    # let(:user) { User.create!(username: "test_user") }
     let(:work) { Work.first }
 
-    def login
-      post login_path, params: { username: user.username }
+    def login_user
+      user = users(:dan)
+      login(user)
       must_respond_with :redirect
     end
 
@@ -224,7 +256,7 @@ describe WorksController do
     it "returns 401 unauthorized after the user has logged out" do
       start_vote_count = work.votes.count
 
-      login
+      login_user
       logout
 
       post upvote_path(work)
@@ -236,8 +268,9 @@ describe WorksController do
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       start_vote_count = work.votes.count
 
-      login
-
+      user = users(:dan)
+      login(user)
+      session[:user_id].must_equal user.id
       post upvote_path(work)
       # Should be a redirect_back
       must_respond_with :redirect
@@ -247,8 +280,9 @@ describe WorksController do
     end
 
     it "returns 409 conflict if the user has already voted for that work" do
-      login
-      Vote.create!(user: user, work: work)
+      user = users(:dan)
+      login(user)
+      # Vote.create!(user: user, work: work)
 
       start_vote_count = work.votes.count
 
